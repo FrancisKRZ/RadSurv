@@ -33,43 +33,47 @@ struct DataPacket {
 
 DataPacket Packet;
 
-
-void setup(){
+void setup() {
 
   Serial.begin(9600);
-  
-  pinMode(LED_BUILTIN, OUTPUT);
 
   radio.begin();
-  radio.openReadingPipe(0, rf_addr[0]);
+  
+  // We'll utilize 00002 as our Writing Pipe
+  radio.openWritingPipe(rf_addr[1]);
+  // We'll utilize 00001 as our Reading Pipe
+  // radio.openReadingPipe(1, rf_addr[0]);
+
+  // ??
   radio.setPALevel(RF24_PA_MIN);
 
-  radio.startListening();
+  // Sets radio as transmitter
+  radio.stopListening();
+
+  // Built-In LED
+  pinMode(LED_BUILTIN, OUTPUT);
 }
 
-void loop(){
 
-  // Radio is active
-  if (radio.available()){
+void loop() {
 
-    radio.read(&Packet, sizeof(DataPacket));
 
-    digitalWrite(LED_BUILTIN, HIGH);
-    Serial.print("MRECV");
+  msg_sent = msg_sent + 1;
 
-    Serial.print(Packet.msg_count);
-  }
-  
+  Packet.msg_count = msg_sent;
+  Packet.msg = "";
+
+  radio.write(&Packet, sizeof(DataPacket));
+
+  Serial.print("MTRAN");                      
+  Serial.print(Packet.msg);
 
   digitalWrite(LED_BUILTIN, LOW);
-  delay(250);
+
+  delay(500);
+
+  digitalWrite(LED_BUILTIN, HIGH);
+
 }
-
-
-
-
-
-
-
 
 
