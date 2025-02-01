@@ -19,8 +19,7 @@
 // Radio Device, connects Chip Enable and Chip Select Not
 RF24 radio(D9, D10);  // CE, CSN
 
-// Class
-TREV Packet;
+
 
 unsigned char addr[] = "a1"; // Address as a byte array
 

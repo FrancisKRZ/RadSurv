@@ -18,17 +18,18 @@
 #define MOSI  11
 #define SCK   13
 
+// IR MV SENSOR
+#define D2 2
+
+
 
 RF24 radio(D9, D10);  // CE, CSN
 
 const byte rf_addr [][6] = {"00001", "00002"};
-bool rf_active = 0;
-unsigned long msg_sent = 0;
-unsigned long msg_recv = 0;
 
 struct DataPacket {
-  String msg;
-  unsigned long msg_count;
+  char msg[4] = "";
+  unsigned long msg_count = 0;
 };
 
 DataPacket Packet;
@@ -45,35 +46,42 @@ void setup() {
   // radio.openReadingPipe(1, rf_addr[0]);
 
   // ??
-  radio.setPALevel(RF24_PA_MIN);
+  radio.setPALevel(RF24_PA_MAX);
 
   // Sets radio as transmitter
   radio.stopListening();
 
   // Built-In LED
   pinMode(LED_BUILTIN, OUTPUT);
+
+  // IR MV Sensor
+  pinMode(D2, INPUT);
+  
 }
 
 
 void loop() {
 
+  if (digitalRead(D2)){
+    // unsigned long MAX RANGE: 4,294,967,295
+    Packet.msg_count = Packet.msg_count + 1;
 
-  msg_sent = msg_sent + 1;
+    strcat(Packet.msg, "MVD");
+    digitalWrite(LED_BUILTIN, HIGH);
 
-  Packet.msg_count = msg_sent;
-  Packet.msg = "";
+  } else {
+
+    strcat(Packet.msg, "");
+    digitalWrite(LED_BUILTIN, LOW);
+
+  }
 
   radio.write(&Packet, sizeof(DataPacket));
 
-  Serial.print("MTRAN");                      
-  Serial.print(Packet.msg);
+  Serial.println(Packet.msg); Serial.print(Packet.msg_count);
 
-  digitalWrite(LED_BUILTIN, LOW);
-
-  delay(500);
-
-  digitalWrite(LED_BUILTIN, HIGH);
-
+  delay(250);
 }
 
 
+// eof
