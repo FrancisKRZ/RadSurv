@@ -8,8 +8,8 @@
 // MOSI: MoSi             -> D11
 // SCK: Serial Clock      -> D13
 
-#define D9    9
-#define D10   10
+#define CE    9
+#define CSN   10
 #define IRQ   6
 
 #define MISO  12

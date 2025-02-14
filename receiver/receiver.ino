@@ -1,74 +1,62 @@
+/*
+ * nRF24L01 Receiver Test Software
+ * 
+ * Exercises the nRF24L01 Module.  This code runs on the receiver 'slave' device.
+ * Use the nRF24L01_Transmitter_Test software for the transmitting 'master' device
+ * 
+ * This uses the RF24.h library which can be installed from the Arduino IDE
+ * Pins used for the SPI interface are determined by the Arduino being used. 
+ * The other two pins are arbitrary and can be changed if needed.  Redfine them in the RF24  
+ * statement.  Default shown here is to use pins 7 &
+ */
 #include <SPI.h>
-#include <nRF24L01.h>
-#include <RF24.h>
+#include "RF24.h"
 
-// CE: Chip Enable        -> D9
-// CSN: Chip Select Not   -> D10
-// IRQ: Interrupt         -> D6
+// nRF24
+#define CE_PIN 7
+#define CSN_PIN 8
 
-// MISO: MiSo             -> D12
-// MOSI: MoSi             -> D11
-// SCK: Serial Clock      -> D13
+// [WIP] Laser
+#define LASER_PIN 2
 
-#define D9    9
-#define D10   10
-#define IRQ   6
+RF24 radio(CE_PIN, CSN_PIN); // CE, CSN      // Define instance of RF24 object called 'radio' and define pins used
 
-#define MISO  12
-#define MOSI  11
-#define SCK   13
+const byte address[6] = "00001";  // Define address/pipe to use. This can be any 5 alphnumeric letters/numbers
+//===============================================================================
+//  Initialization
+//===============================================================================
+void setup() {
 
-#define D3 3
+  Serial.begin(9600);                // Start serial port to display messages on Serial Monitor Window
+  radio.begin();                     // Start instance of the radio object
+  radio.openReadingPipe(0, address); // Setup pipe to write data to the address that was defined
+  radio.setPALevel(RF24_PA_MAX);     // Set the Power Amplified level to MAX in this case
+  radio.startListening();            // We are going to be the receiver, so we need to start listening
 
-
-RF24 radio(D9, D10);  // CE, CSN
-
-const byte rf_addr [][6] = {"00001", "00002"};
-
-struct DataPacket {
-  char msg[4] = "";
-  unsigned long msg_count = 0;
-};
-
-DataPacket Packet;
-
-
-void setup(){
-
-  Serial.begin(9600);
-  
-  pinMode(LED_BUILTIN, OUTPUT);
-
-  radio.begin();
-  radio.openReadingPipe(0, rf_addr[1]);
-  radio.setPALevel(RF24_PA_MAX);
-
-  radio.startListening();
-
-  pinMode(D3, OUTPUT);
+  pinMode(LASER_PIN, OUTPUT);
 }
+//===============================================================================
+//  Main
+//===============================================================================
+void loop() {
 
-void loop(){
+  /* RTOS Opportunity , 
+  Synchronize laser activation and radio read 
+  on separate threads */
 
-  // Radio is active
-  if (radio.available()){
+  bool MOVEMENT = LOW;
 
-    radio.read(&Packet, sizeof(DataPacket));
+  if (radio.available()) {  
+    // char text[32] = "";               // Clear buffer
+    // radio.read(&text, sizeof(text));  // Read incoming message into buffer
 
-    Serial.println(Packet.msg); Serial.print(Packet.msg);
+    radio.read(&MOVEMENT, sizeof(bool));
 
+    digitalWrite(LASER_PIN, MOVEMENT);
+
+    Serial.println(MOVEMENT);             // Print the message to the Serial Monitor window
   }
-  
 
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(250);
+  digitalWrite(LASER_PIN, MOVEMENT);
 }
-
-
-
-
-
-
-
-
 
