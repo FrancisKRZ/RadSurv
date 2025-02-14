@@ -25,9 +25,9 @@ const byte address[6] = "00001";  // Define address/pipe to use.
 //===============================================================================
 void setup() {
 
-  Serial.begin(9600);
+  // Serial.begin(9600);
 
-  while (!Serial){ };
+  // while (!Serial){ };
 
   radio.begin();                  // Start instance of the radio object
   radio.openWritingPipe(address); // Setup pipe to write data to the address that was defined

@@ -27,7 +27,7 @@ const byte address[6] = "00001";  // Define address/pipe to use. This can be any
 //===============================================================================
 void setup() {
 
-  Serial.begin(9600);                // Start serial port to display messages on Serial Monitor Window
+  // Serial.begin(9600);                // Start serial port to display messages on Serial Monitor Window
   radio.begin();                     // Start instance of the radio object
   radio.openReadingPipe(0, address); // Setup pipe to write data to the address that was defined
   radio.setPALevel(RF24_PA_MAX);     // Set the Power Amplified level to MAX in this case
@@ -54,7 +54,7 @@ void loop() {
 
     digitalWrite(LASER_PIN, MOVEMENT);
 
-    Serial.println(MOVEMENT);             // Print the message to the Serial Monitor window
+    // Serial.println(MOVEMENT);             // Print the message to the Serial Monitor window
   }
 
   digitalWrite(LASER_PIN, MOVEMENT);
