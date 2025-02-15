@@ -227,8 +227,8 @@ bool AList::operator == (const AList &other) const{
 //    return sumA < sumB;
 //}
 
-
-bool AList::operator<(const AList &other) const{
+// Returns true if invoking object's array is smaller than other
+bool AList::operator < (const AList &other) const{
 
     int SIZE = listSize + other.listSize;
 
