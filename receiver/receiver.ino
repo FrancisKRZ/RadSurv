@@ -10,8 +10,11 @@
 #include <SPI.h>
 #include "RF24.h"
 
+// DEBUG MODE ---- Prevents serial prints out from being compiled if not DEBUG_ENABLE not defined
+// #define DEBUG_ENABLE
+
 // nRF24
-#define CE_PIN 7
+#define CE_PIN 7 
 #define CSN_PIN 8
 
 // [WIP] Alert Module
@@ -42,17 +45,23 @@ const byte address[6] = "00001";
 //===============================================================================
 void setup() {
 
+
+  #ifdef DEBUG_ENABLE
   /*  Use Serial during Debugging only */
   Serial.begin(9600);
   // Wait for Serial init
   while (!Serial) { };
+  #endif
 
   
   // Mutex creation
   mutex = xSemaphoreCreateMutex();
+
+  #ifdef DEBUG_ENABLE
   if (mutex != NULL){
     Serial.println("Mutex Created");
   }
+  #endif
 
   // Scoped Enumeration
   enum task_priorities {
@@ -109,13 +118,17 @@ void TaskRFRecv(void *pvParameters){
 
       radio.read(&MOVEMENT, sizeof(bool));
       
+      #ifdef DEBUG_ENABLE
       Serial.print("TaskRFRecv ---- MOVEMENT: "); Serial.println(MOVEMENT);
+      #endif
 
       // Take mutex to write GLOBAL_ALERT = MOVEMENT
       if (xSemaphoreTake(mutex, 10) == pdTRUE){
 
+        #ifdef DEBUG_ENABLE
         Serial.print("TaskRFRecv ---- Taking Mutex, setting GLOBAL_ALERT = MOVEMENT: ");
         Serial.println(MOVEMENT);
+        #endif
 
         GLOBAL_ALERT = MOVEMENT;
         xSemaphoreGive(mutex);
@@ -144,7 +157,9 @@ void TaskAlertMod(void *pvParameters){
       // Assign to local status
       bool ALERT_STATUS = GLOBAL_ALERT;
 
+      #ifdef DEBUG_ENABLE
       Serial.println("TaskAlertMod ---- Setting ALERT_STATUS = GLOBAL_ALERT");
+      #endif
 
       // Release
       xSemaphoreGive(mutex);

@@ -8,6 +8,9 @@
 #include <SPI.h>
 #include "RF24.h"
 
+// #define DEBUG_ENABLE
+
+
 // Radio Pins
 #define CE_PIN 7
 #define CSN_PIN 8
@@ -51,7 +54,6 @@ void loop() {
   Sequential circuit camera activation upon movement_detected
   for 3-5 minutes , then deactivation */
 
-  
   bool movement_detected = movement_logic();
 
   while (movement_detected){
@@ -59,14 +61,18 @@ void loop() {
     radio.write(&movement_detected, sizeof(bool));
     movement_detected = movement_logic();
 
-    Serial.println(movement_detected);
+
+    #ifdef DEBUG_ENABLE
+      Serial.println(movement_detected);
+    #endif
   }
 
   // Note, we've to write a couple of zeroes to make sure receiver reads
 
 
 
-  delay(500);                          // Delay for 1 second, then repeat
+  // Remove delays if using tasks
+  delay(100);                          // Delay for 0.1 second, then repeat
 
 }
 
@@ -74,7 +80,7 @@ void loop() {
 bool movement_logic(){
 
   // Used to send additional zeroes to ensure readouts by the receiver(s)
-  static unsigned short ZERO_BUFFER = 4;
+  const static unsigned short ZERO_BUFFER = 16;
 
   pinStatePrevious = pinStateCurrent;      // Stores old state
   pinStateCurrent  = digitalRead(IRM_PIN); // Reads new state
