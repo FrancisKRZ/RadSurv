@@ -61,15 +61,10 @@ void loop() {
     radio.write(&movement_detected, sizeof(bool));
     movement_detected = movement_logic();
 
-
     #ifdef DEBUG_ENABLE
       Serial.println(movement_detected);
     #endif
   }
-
-  // Note, we've to write a couple of zeroes to make sure receiver reads
-
-
 
   // Remove delays if using tasks
   delay(100);                          // Delay for 0.1 second, then repeat
