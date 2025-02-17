@@ -1,6 +1,4 @@
 #include "axon.h"
-// Abstract List Implementation
-#include "AList.h"
 
 // Constructor
 TREV::TREV() : addr_len(0), num_addresses(0), address(nullptr), current_status(OFF) {}
@@ -12,15 +10,7 @@ TREV::~TREV() {
 
 // Clear dynamically allocated addresses
 void TREV::clear_addresses() {
-    if (address) {
-        for (unsigned short i = 0; i < num_addresses; ++i) {
-            delete[] address[i];
-        }
-        delete[] address;
-        address = nullptr;
-        num_addresses = 0;
-        addr_len = 0;
-    }
+
 }
 
 // Getter for status
@@ -47,17 +37,7 @@ void TREV::set_status(unsigned short status) {
 
 // Setter for address with dynamic memory management
 void TREV::set_address(byte* addr, unsigned short num_addr, unsigned short len) {
-    clear_addresses(); // Free existing addresses
 
-    if (num_addr > 0 && len > 0) {
-        addr_len = len;
-        num_addresses = num_addr;
-        address = new byte*[num_addresses];
-        for (unsigned short i = 0; i < num_addresses; ++i) {
-            address[i] = new byte[addr_len];
-            memcpy(address[i], addr, addr_len * sizeof(byte));
-        }
-    }
 }
 
 
