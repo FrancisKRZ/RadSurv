@@ -18,7 +18,9 @@ _____________________________________________________________________
     - server.py         Manages incoming transmitter signals for data storage
     - receiver.ino      Localized alert module when transmitter sends a true alert, managed by FreeRTOS scheduler
     - transmitter.ino   Sends true alert to receivers, including server which has an NRF24 module installed
-
+	[Auxiliary]
+		- $apt install pipgpio python-pigpio python3-pigpio
+		- pip install nrf24 
 
 [Platforms]
     - Raspberry Pi Zero :   server.py
