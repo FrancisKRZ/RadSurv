@@ -93,15 +93,11 @@ void TaskRFRecv(void *pvParameters){
 
   (void) pvParameters;
 
-  bool write_alert = GLOBAL_ALERT;
-
-
   // RF Module configurations
   radio.begin();                     // Start instance of the radio object
-  radio.openReadingPipe(0, address); // Setup pipe to write data to the address that was defined
+  radio.openReadingPipe(0, address); // Setup pipe to read data to the address that was defined
   radio.setPALevel(RF24_PA_HIGH);     // Set the Power Amplified level to [WIP]] in this case
   radio.startListening();            // We are going to be the receiver, so we need to start listening
-
 
   // Tasks run indefinitely
   for (;;){
@@ -112,26 +108,16 @@ void TaskRFRecv(void *pvParameters){
       bool MOVEMENT;
 
       radio.read(&MOVEMENT, sizeof(bool));
-
-
+      
       Serial.print("TaskRFRecv ---- MOVEMENT: "); Serial.println(MOVEMENT);
-
-      // Call Semaphore/Update only when movement changes to avoid deadlock
-      // previousMovement = currentMovement;
-      // currentMovement = MOVEMENT;
-
-
 
       // Take mutex to write GLOBAL_ALERT = MOVEMENT
       if (xSemaphoreTake(mutex, 10) == pdTRUE){
 
         Serial.print("TaskRFRecv ---- Taking Mutex, setting GLOBAL_ALERT = MOVEMENT: ");
-
         Serial.println(MOVEMENT);
 
-
         GLOBAL_ALERT = MOVEMENT;
-
         xSemaphoreGive(mutex);
       }
 
@@ -165,17 +151,17 @@ void TaskAlertMod(void *pvParameters){
 
       if (ALERT_STATUS){
         digitalWrite(BUZZER_PIN, HIGH);
-        vTaskDelay( 250 / portTICK_PERIOD_MS);
+        // vTaskDelay( 250 / portTICK_PERIOD_MS);
       } else {
         digitalWrite(BUZZER_PIN, LOW);
-        vTaskDelay( 125 / portTICK_PERIOD_MS);
+        // vTaskDelay( 125 / portTICK_PERIOD_MS);
       }
 
   
     } // eo mutex if
   
 
-    vTaskDelay(10); // Prevents tasks from overloading scheduler
+    vTaskDelay(5); // Prevents tasks from overloading scheduler
 
   } // eo for
 }

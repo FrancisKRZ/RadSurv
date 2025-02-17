@@ -73,6 +73,9 @@ void loop() {
 
 bool movement_logic(){
 
+  // Used to send additional zeroes to ensure readouts by the receiver(s)
+  static unsigned short ZERO_BUFFER = 4;
+
   pinStatePrevious = pinStateCurrent;      // Stores old state
   pinStateCurrent  = digitalRead(IRM_PIN); // Reads new state
 
@@ -83,7 +86,7 @@ bool movement_logic(){
 
     bool send_false = false;
 
-    for (int i = 0; i < 16; i++){
+    for (int i = 0; i < ZERO_BUFFER; i++){
       radio.write(&send_false, sizeof(bool));
     }
     return false;
