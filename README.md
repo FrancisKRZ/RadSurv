@@ -19,6 +19,7 @@ _____________________________________________________________________
     - receiver.ino      Localized alert module when transmitter sends a true alert, managed by FreeRTOS scheduler
     - transmitter.ino   Sends true alert to receivers, including server which has an NRF24 module installed
 	[Auxiliary]
+		NRF24 Python by user bjarne-hansen
 		- $apt install pipgpio python-pigpio python3-pigpio
 		- pip install nrf24 
 
