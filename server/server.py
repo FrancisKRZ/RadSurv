@@ -22,8 +22,6 @@ from threading import Thread
 
 # The connection shall be TCP to ensure quality file wr/rd and surveillance integrity
 
-
-
 if __name__ == "__main__":
 
     print(f"Host Server running at {socket.gethostbyname()}")
