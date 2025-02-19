@@ -29,7 +29,7 @@ from threading import Thread
 mutex = Lock()
 
 # Global Logging Object
-logging.basicConfig(filename="rf_to_server.log", format='%(asctime)s %(message)s', filemode='w')
+logging.basicConfig(filename="../log/rf_to_server.log", format='%(asctime)s %(message)s', filemode='w')
 logger = logging.getLogger()
 
 
@@ -80,10 +80,10 @@ class SharedQueue:
         return self.count == 0
 
     def get_AE_flag(self):
-        return self.count < self.depth * 0.50
+        return self.count < self.depth * 0.25
 
     def get_AF_flag(self):
-        return self.count >= self.depth * 50
+        return self.count > self.depth * 0.75
 
 
 # [THREAD] Producer: Builds packet frames from RF data
@@ -92,24 +92,42 @@ class SharedQueue:
 # amount of time has elapsed [30, 60] seconds and the buffer
 # is not empty, will build the frame.
 # Additionally, we'll keep track of the devices sending data dynamically
+# Payload is in Queue Object
 class RFPacketBuilder(Thread):
 
     def __init__(self, 
-        server_hostname, server_port, 
-        client_hostname, client_port, cur_time, payload):
+        local_hostname, local_port, 
+        remote_hostname, remote_port, 
+        Queue_Object):
 
-        self.server_hostname = server_hostname
-        self.server_port = server_port
-        self.client_hostname = client_hostname
-        self.client_port = client_port
-        self.cur_time = cur_time
-        self.payload = payload
+        self.local_hostname = local_hostname
+        self.local_port = local_port
+
+        self.remote_hostname = remote_hostname
+        self.remote_port = remote_port
+   
+        # Initialize connection between local and remote
+
 
         Thread.__init__(self)
 
+    
+    def build_packet(Queue_Object):
+
+        # Build Packet containing: Local IDs, Payload metadata, connection metadata...
+
+        print(f"Build object with data: {Queue_Object.queue}")
+        
+
+
+# Init should establish TCP connection, we'll simply send and await confirmation
+class RFPacketSender(Thread):
+
     ''
 
+    def send_packet(self):
 
+        return None
 
 
 if __name__ == "__main__":
@@ -117,22 +135,36 @@ if __name__ == "__main__":
     print(f"Server at {socket.gethostbyname()}")
 
     # Parse command line arguments
-    parser = argparse.ArgumentParser(prog="rf_to_server.py", description="Simple NRF24 Request/Response Server Example.")
-    parser.add_argument('-n', '--hostname', type=str, default='localhost', help="Hostname for the RF Node running the pigpio daemon.")
-    parser.add_argument('-p', '--port', type=int, default=8888, help="Port number of the pigpio daemon.")
-    parser.add_argument('address', type=str, nargs='?', default='1SRVR', help="Radio Address to listen to (up to 6 ASCII characters).")
+    parser = argparse.ArgumentParser(prog="rf_to_server.py", description="Simple NRF24 Request/Response Server Example")
+    
+    # Local Device Hostname and Port
+    parser.add_argument('-n', '--hostname', type=str, default='localhost', help="Hostname for the RF Node running the pigpio daemon")
+    parser.add_argument('-p', '--port', type=int, default=8888, help="Port number of the pigpio daemon")
+
+    # Remote Device Hostname and Port
+    parser.add_argument('-t', '--remote_hostname', type=str, default='remotehost', help="Hostname for remote server")
+    parser.add_argument('-g', '--remote_port', type=int, default=8888, help="Port number of the remote server")
+
+    # Radio Device Transmitter address
+    parser.add_argument('address', type=str, nargs='?', default='1SRVR', help="Radio Address to listen to (up to 6 ASCII characters)")
 
 
     # Address Char Limit
     ADDRESS_CHAR_LIMIT = 6
 
+    # Parse CLI arguments
     args = parser.parse_args()
-    hostname = args.hostname
-    port = args.port
+
+    # Local device
+    local_hostname = args.hostname
+    local_port = args.port
+
+    # Remote device
+    remote_hostname = args.remote_hostname
+    remote_port = args.remote_port
+
+    # RF address
     address = args.address
-
-
-    # Open log file
 
 
     # Check if addr is not char [6]
@@ -142,10 +174,10 @@ if __name__ == "__main__":
     
 
     # Connect to pigpiod
-    print(f'Connecting to GPIO daemon on {hostname}:{port} ...')
-    pi = pigpio.pi(hostname, port)
+    print(f'Connecting to GPIO daemon on {local_hostname}:{local_port} ...')
+    pi = pigpio.pi(local_hostname, local_port)
     if not pi.connected:
-        print(f"Not connected to {hostname}")
+        print(f"Not connected to {local_hostname}")
         sys.exit()
 
     # NRF24 Object
@@ -153,11 +185,24 @@ if __name__ == "__main__":
                 data_rate=RF24_DATA_RATE.RATE_250KBPS, pa_level=RF24_PA.HIGH)
     
     nrf.set_address_bytes(len(address))
-
     # Display the content of NRF24L01 device registers.
     nrf.show_registers()
 
-    
+    # GPIO and RF Initialization completed
+
+    # Maximum Queue depth
+    QUEUE_DEPTH = 32
+
+    # Create SharedQueue object
+    Queue = SharedQueue(QUEUE_DEPTH)
+
+    # Create RFPacketBuilder object
+    PacketBuilder = RFPacketBuilder(
+        local_hostname=local_hostname, local_port=local_port,
+        remote_hostname=remote_hostname, remote_port=remote_port,
+        Queue_Object=Queue
+        )
+
     # Receiver body
     try:
         print(f"Receiving from {address}")
@@ -177,6 +222,27 @@ if __name__ == "__main__":
 
                 # Protocol number
                 protocol = payload[0] if len(payload) > 0 else -1
+
+                print(f"Payload: {payload}")
+                # Write Packet into SharedQueue
+                Queue.write_data(payload)
+
+
+                # [Mutex and Thread]
+                # Send Packet through network & confirm reception after buffer indicates <High Activity>
+                # or if 5 minutes has elapsed since buffer item was written <Low Activity>
+                if Queue.almost_full() is True:
+                    PacketBuilder.build_packet()
+                
+
+                # [Mutex and Thread]
+                # If a Packet was built, send packet
+
+                # Log total packets sent through network every 30 minutes 
+                # or if an anomalous packet amount has been reached
+
+
+
 
                 # Print message
                 print(f"{cur_date:%Y-%m-%d %H:%M:%S.%f}: pipe {pipe}, len: {len(payload)}")

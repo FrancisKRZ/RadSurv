@@ -14,11 +14,17 @@ import socket
 import time
 
 import argparse
+import logging
 
 # Multi-Threaded for Server and Radio operations
 from threading import Lock
 from threading import Thread
 
+mutex = Lock()
+
+# Global Logging Object
+logging.basicConfig(filename="../log/server.log", format='%(asctime)s %(message)s', filemode='w')
+logger = logging.getLogger()
 
 # The connection shall be TCP to ensure quality file wr/rd and surveillance integrity
 
