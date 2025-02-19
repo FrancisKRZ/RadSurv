@@ -13,5 +13,30 @@ import sys
 import socket
 import time
 
+import argparse
+
 # Multi-Threaded for Server and Radio operations
-from threading import Lock, Thread
+from threading import Lock
+from threading import Thread
+
+
+# The connection shall be TCP to ensure quality file wr/rd and surveillance integrity
+
+
+
+if __name__ == "__main__":
+
+    print(f"Host Server running at {socket.gethostbyname()}")
+
+    # Parse command line arguments
+    parser = argparse.ArgumentParse(prog="server.py", description="Listens to packets from RF Server nodes.")
+    parser.add_argument('-n', '--hostname', type=str, default='localhost', help="Hostname for the Server.")
+    parser.add_argument('-p', '--port', type=int, default=8888, help="Port number for Server.")
+
+    args = parser.parse_args()
+    hostname = args.hostname
+    port = args.port
+
+    print(f"Hostname: {hostname}, listening on port: {port}")
+
+
