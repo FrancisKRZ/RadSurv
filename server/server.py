@@ -1,3 +1,5 @@
+# NOTE: https://docs.python.org/3.11/howto/sockets.html
+
 # server.py ---- Responsible for receiving wifi packets from rf_to_server.py
 # The packets will contain with address, time, length and contents
 # Primary Identifiers: address
@@ -27,6 +29,39 @@ logging.basicConfig(filename="../log/server.log", format='%(asctime)s %(message)
 logger = logging.getLogger()
 
 # The connection shall be TCP to ensure quality file wr/rd and surveillance integrity
+class Server(Thread):
+
+    def __init__(self, hostname, port, MAXIMUM_CONNECTIONS):
+        self.hostname = hostname
+        self.port     = port
+        self.MAXIMUM_CONNECTIONS = MAXIMUM_CONNECTIONS
+
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.bind(self.hostname, self.port)
+
+    def start(self):
+
+        # Listens up to MAX connections
+        self.server.listen(self.MAXIMUM_CONNECTIONS)
+
+        while True:
+
+            # Accepts connections from outside
+            (clientsocket, address) = self.server.accept()
+
+            # OFFICIAL DOC ---- NOTE: WE WILL HANDLE CONNECTIONS BY MAKING CHILD THREADS
+            '''
+            There’s actually 3 general ways in which this loop could work - dispatching a thread to handle clientsocket, 
+            create a new process to handle clientsocket, or restructure this app to use non-blocking sockets, 
+            and multiplex between our “server” socket and any active clientsockets using select. More about that later. 
+            The important thing to understand now is this: this is all a “server” socket does. It doesn’t send any data. 
+            It doesn’t receive any data. It just produces “client” sockets. Each clientsocket is created in response to 
+            some other “client” socket doing a connect() to the host and port we’re bound to. As soon as we’ve created 
+            that clientsocket, we go back to listening for more connections. The two “clients” are free to chat it up -
+            they are using some dynamically allocated port which will be recycled when the conversation ends.
+            '''
+
+
 
 if __name__ == "__main__":
 

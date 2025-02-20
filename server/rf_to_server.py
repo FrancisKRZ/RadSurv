@@ -6,7 +6,7 @@
 
 # Libraries as seen in rr-server.py
 import argparse
-import struct # for unpacking packets
+import struct
 import traceback
 
 # Pi Zero GPIO 
@@ -72,6 +72,13 @@ class SharedQueue:
             logger.error("Error: Device %s Failed ShareQueue read_data", socket.gethostbyname())
 
 
+    # Get Queue item
+    def get_queue(self):
+        return self.queue
+
+    def get_count(self):
+        return self.count
+
     # Get Queue Buffer status flags
     def get_Full_flag(self):
         return self.count == self.depth
@@ -96,38 +103,51 @@ class SharedQueue:
 class RFPacketBuilder(Thread):
 
     def __init__(self, 
-        local_hostname, local_port, 
-        remote_hostname, remote_port, 
-        Queue_Object):
+        local_hostname, local_port):
 
         self.local_hostname = local_hostname
         self.local_port = local_port
 
-        self.remote_hostname = remote_hostname
-        self.remote_port = remote_port
-   
-        # Initialize connection between local and remote
-
-
+        # Thread Mutex thingamajig
         Thread.__init__(self)
 
-    
-    def build_packet(Queue_Object):
+    # Builds a Packet containing local and remote addrs & port
+    # current time, queue and queue's item count
+    # <returns struct.pack>
+    def build_packet(Queue_Object: SharedQueue):
 
         # Build Packet containing: Local IDs, Payload metadata, connection metadata...
-
         print(f"Build object with data: {Queue_Object.queue}")
         
+        # Current time as of packet build
+        cur_date = datetime.now()
+        # SharedQueue queue and item count
+        queue = SharedQueue.get_queue()
+        count = SharedQueue.get_count()
+
+        packet = struct.pack(local_hostname, local_port, 
+                            cur_date, queue, count
+                            )
+
+        return packet
 
 
 # Init should establish TCP connection, we'll simply send and await confirmation
 class RFPacketSender(Thread):
 
-    ''
+    def __init__(self, remote_address, remote_port):
+        
+        self.remote_address = remote_address
+        self.remote_port = remote_port
 
-    def send_packet(self):
+        # Create Socket connection and Connect to remote server
+        self.socket_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket_connection.bind(self.remote_address, self.remote_port)
 
-        return None
+    def send_packet(Queue_Object):
+
+        print("Sending Packet")
+        
 
 
 if __name__ == "__main__":
