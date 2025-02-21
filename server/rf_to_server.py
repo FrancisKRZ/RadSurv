@@ -166,7 +166,7 @@ if __name__ == "__main__":
     parser.add_argument('-g', '--remote_port', type=int, default=8888, help="Port number of the remote server")
 
     # Radio Device Transmitter address
-    parser.add_argument('address', type=str, nargs='?', default='1SRVR', help="Radio Address to listen to (up to 6 ASCII characters)")
+    parser.add_argument('-a', '--address', type=str, nargs='?', default='1SRVR', help="Radio Address to listen to (up to 6 ASCII characters)")
 
 
     # Address Char Limit
@@ -272,6 +272,7 @@ if __name__ == "__main__":
 
     except:
         # If catch exception, power down device(s)
+        logger.error("Error during receiver body execution by device %s", socket.gethostbyname())
         traceback.print_exc()
         nrf.power_down()
         pi.stop()
