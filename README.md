@@ -18,7 +18,7 @@ and server for surveillance database.
 
 
 
-## Background and Stategic Fit
+## Background and Strategic Fit
 
 Context, we've to cover from [50, 1000] meters squared using RF, 
 within each a maximum distance of each RF device, will be a converter device
