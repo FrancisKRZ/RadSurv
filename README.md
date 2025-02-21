@@ -1,4 +1,4 @@
-[Radio Surveillance]
+Radio Surveillance
 
 ## Description
 
