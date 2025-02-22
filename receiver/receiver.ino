@@ -45,7 +45,6 @@ const byte address[6] = "00001";
 //===============================================================================
 void setup() {
 
-
   #ifdef DEBUG_ENABLE
   /*  Use Serial during Debugging only */
   Serial.begin(9600);
@@ -74,7 +73,7 @@ void setup() {
   task_priorities priorities;
 
   // Create a Standard Stack Size of 128 bits (16 bytes)
-  const static uint32_t stackSize = 128;
+  const uint32_t stackSize = 128;
 
   // Radio Comms Task   ----- 17 bytes
   xTaskCreate(TaskRFRecv, "RadioRecv", stackSize * 2, NULL, HIGH_PRIORITY, &TaskRFRecv_Handler);
@@ -137,7 +136,7 @@ void TaskRFRecv(void *pvParameters){
 
     } // eo if
 
-    vTaskDelay(1);
+    vTaskDelay(5);
 
   } // eo for
 }
@@ -164,15 +163,7 @@ void TaskAlertMod(void *pvParameters){
       // Release
       xSemaphoreGive(mutex);
 
-      if (ALERT_STATUS){
-        digitalWrite(BUZZER_PIN, HIGH);
-        // vTaskDelay( 250 / portTICK_PERIOD_MS);
-      } else {
-        digitalWrite(BUZZER_PIN, LOW);
-        // vTaskDelay( 125 / portTICK_PERIOD_MS);
-      }
-
-  
+      digitalWrite(BUZZER_PIN, ALERT_STATUS);
     } // eo mutex if
   
 
@@ -183,4 +174,4 @@ void TaskAlertMod(void *pvParameters){
 
 
 // Not utilized (RTOS Tasks instead)
-void loop() { }
+void loop() { vTaskDelete(NULL); }

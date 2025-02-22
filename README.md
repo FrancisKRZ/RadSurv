@@ -1,4 +1,4 @@
-[Radio Surveillance]
+Radio Surveillance
 
 ## Description
 
@@ -60,23 +60,34 @@ which will initiate packet capturing, which will also be sent to the server.
 |   |            |  alert personnel of surveillance device trigger               |            | of work has gone into it, haha.
 
 
+
+[Additional Setup]
+
 Server and Client will be run from a virtual environment such as to manage their respective purposes,
 database from the server and rf gpio from the client. The version is not of importance.
+
+NRF24 Python by user bjarne-hansen
+- $apt install pipgpio python-pigpio python3-pigpio
+- pip install nrf24 
 
 
 
 # Directories
 
-   [Device  | Working Directory]
-    ATMega  | receiver/
-    ATMega  | transmitter/
-    RPI     | server/
+   [Device   | Working Directory]
+    AVR      | receiver/
+    AVR      | transmitter/
+    RISCV    | server/
+    RISCV    | interface/
+    RISCV    | interface/frontend
+    RISCV    | interface/backend
 
 [Working Directory Files]
-    - receiver.ino      Localized alert module when transmitter sends a true alert, managed by FreeRTOS scheduler
-    - transmitter.ino   Sends true alert to receivers, including server which has an NRF24 module installed
-    - server.py         Manages incoming transmitter signals for data storage
-    - rf_to_server.py   Listens to transmitter's signals, writes into a buffer then writes to TCP server.
+    - receiver/receiver.ino         Localized alert module when transmitter sends a true alert, managed by FreeRTOS scheduler
+    - transmitter/transmitter.ino   Sends true alert to receivers, including server which has an NRF24 module installed
+    - server/server.py              Manages incoming transmitter signals for data storage
+    - server/rf_to_server.py        Listens to transmitter's signals, writes into a buffer then writes to TCP server.
+    - interface/                    ....
 
 [Output Directory]
     - log/              : Contains error logs obtain at running time from server.py and rf_to_server.py
@@ -112,14 +123,7 @@ Server and Client connection files, server.py and rf_to_server.py will utilize a
 
 ## Resources and References
 
-Socket Programming TCP <Server>: https://docs.python.org/3.11/howto/sockets.html
-RF24 <Transmitters and Receivers>:   https://github.com/nRF24/RF24?tab=readme-ov-file
-RF24 <RF to Server Converter>: https://github.com/bjarne-hansen/py-nrf24
-FreeRTOS <Scheduler>: https://www.freertos.org/Documentation/00-Overview
-
-
-[Auxiliary]
-    NRF24 Python by user bjarne-hansen
-    - $apt install pipgpio python-pigpio python3-pigpio
-    - pip install nrf24 
-
+- Server                        ---- Socket Programming TCP: https://docs.python.org/3.11/howto/sockets.html
+- Transmitters and Receivers    ---- RF24:      https://github.com/nRF24/RF24?tab=readme-ov-file
+- RF to Server                  ---- RF24:      https://github.com/bjarne-hansen/py-nrf24
+- Scheduler                     ---- FreeRTOS:  https://www.freertos.org/Documentation/00-Overview
