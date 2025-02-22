@@ -19,6 +19,9 @@ import sys
 import socket
 import time
 
+# SharedQueue buffer
+import SharedQueue
+
 # Log critical error events from SharedQueue wr/rd, Radio failures and Socket wr operations
 import logging
 
@@ -33,64 +36,7 @@ logging.basicConfig(filename="../log/rf_to_server.log", format='%(asctime)s %(me
 logger = logging.getLogger()
 
 
-# [MUTEX] Shared Resource Queue <Implementation>: 
-class SharedQueue:
 
-    def __init__(self, depth):
-        
-        self.depth = depth                          # Queue depth limit
-        self.count = 0                              # Current item count, starts at 0
-        self.rd_ptr = 0
-        # All flags are type bool
-        # Empty flag , Full flag
-        # Almost Empty flag  , Almost Full flag 
-
-        # Queue
-        self.queue = [None] * self.depth
-
-    # [Mutex] Acquire and Release mutex during use (caller function) instead of implementation
-    def write_data(self, data):
-
-        try:
-            if self.get_Full_flag() is False:
-                self.queue[count] = data
-                self.count = self.count + 1
-        except:
-            print("Failed SharedQueue write_data")
-            logger.error("Error: Device %s Failed SharedQueue write_data", socket.gethostbyname())
-
-    # [Mutex]
-    def read_data(self):
-
-        try:
-            if self.get_Empty_flag is False:
-                self.count = self.count - 1      # Update size counter
-                self.rd_ptr = rd_ptr + 1         # Update read pointer prior to return
-                return SharedQueue[rd_ptr-1]     # return the original pointed Queue rd
-        except:
-            print("Failed to read data")
-            logger.error("Error: Device %s Failed ShareQueue read_data", socket.gethostbyname())
-
-
-    # Get Queue item
-    def get_queue(self):
-        return self.queue
-
-    def get_count(self):
-        return self.count
-
-    # Get Queue Buffer status flags
-    def get_Full_flag(self):
-        return self.count == self.depth
-    
-    def get_Empty_flag(self):
-        return self.count == 0
-
-    def get_AE_flag(self):
-        return self.count < self.depth * 0.25
-
-    def get_AF_flag(self):
-        return self.count > self.depth * 0.75
 
 
 # [THREAD] Producer: Builds packet frames from RF data
@@ -100,21 +46,24 @@ class SharedQueue:
 # is not empty, will build the frame.
 # Additionally, we'll keep track of the devices sending data dynamically
 # Payload is in Queue Object
+
+# Returns a struct pack containing local hostname, local port
+# queue list and queue length
 class RFPacketBuilder(Thread):
 
-    def __init__(self, 
-        local_hostname, local_port):
-
+    def __init__(self, local_hostname: str, local_port: int):
+        # Local Device
         self.local_hostname = local_hostname
         self.local_port = local_port
 
         # Thread Mutex thingamajig
         Thread.__init__(self)
 
+
     # Builds a Packet containing local and remote addrs & port
     # current time, queue and queue's item count
     # <returns struct.pack>
-    def build_packet(Queue_Object: SharedQueue):
+    def build_packet(self, Queue_Object: SharedQueue) -> bytes:
 
         # Build Packet containing: Local IDs, Payload metadata, connection metadata...
         print(f"Build object with data: {Queue_Object.queue}")
@@ -122,12 +71,11 @@ class RFPacketBuilder(Thread):
         # Current time as of packet build
         cur_date = datetime.now()
         # SharedQueue queue and item count
-        queue = SharedQueue.get_queue()
-        count = SharedQueue.get_count()
+        queue        = SharedQueue.get_queue()
+        queue_length = SharedQueue.get_count()
 
-        packet = struct.pack(local_hostname, local_port, 
-                            cur_date, queue, count
-                            )
+        packet = struct.pack(self.local_hostname, self.local_port, 
+                            cur_date, queue, queue_length)
 
         return packet
 
@@ -135,21 +83,41 @@ class RFPacketBuilder(Thread):
 # Init should establish TCP connection, we'll simply send and await confirmation
 class RFPacketSender(Thread):
 
-    def __init__(self, remote_address, remote_port):
-        
-        self.remote_address = remote_address
+    def __init__(self, remote_hostname: str, remote_port: int):        
+        # Remote Device
+        self.remote_hostname = remote_hostname
         self.remote_port = remote_port
+        self.client = None
 
-        # Create Socket connection and Connect to remote server
-        self.socket_connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket_connection.bind(self.remote_address, self.remote_port)
+    # Connect to remote server
+    def connect(self):
 
-    def send_packet(Queue_Object):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.client:
+                # Connects client to server
+                self.client.connect((self.remote_hostname, self.remote_port))
+        except:
+            logger.error("Error during RFPacketSender.connect()")
 
-        print("Sending Packet")
+
+    def send(self, packet : bytes):
         
+        try:
+            self.client.sendall(packet)
+        except:
+            logger.error("Error during RFPacketSender.send()")
 
 
+    def receive(self):
+
+        try:
+            recv = str(self.client.recv(1024), "utf-8")
+        except:
+            logger.error("Error during RFPacketSender.receive()")
+
+
+
+# Calls arg parser, pigpio, rf module, and manages SharedQueue buffer wr/rx and socket connection(s)
 if __name__ == "__main__":
 
     print(f"Server at {socket.gethostbyname()}")
