@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
 
     # Parse command line arguments
-    parser = argparse.ArgumentParse(prog="server.py", description="Listens to packets from RF Server nodes.")
+    parser = argparse.ArgumentParser(prog="server.py", description="Listens to packets from RF Server nodes.")
     parser.add_argument('-n', '--hostname', type=str, default='localhost', help="Hostname for the Server.")
     parser.add_argument('-p', '--port', type=int, default=8888, help="Port number for Server.")
     parser.add_argument('-m', '--maxconns', type=int, default=5, help="Maximum Server connections from clients.")
