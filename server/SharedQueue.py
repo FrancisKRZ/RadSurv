@@ -13,6 +13,7 @@ class SharedQueue:
         # Queue
         self.queue = [None] * self.depth
 
+
     # [Mutex] Acquire and Release mutex during use (caller function) instead of implementation
     def write_data(self, data):
 
@@ -23,6 +24,7 @@ class SharedQueue:
         except:
             print("Failed SharedQueue write_data")
             logger.error("Error: Device %s Failed SharedQueue write_data", socket.gethostbyname())
+
 
     # [Mutex]
     def read_data(self):
@@ -35,6 +37,16 @@ class SharedQueue:
         except:
             print("Failed to read data")
             logger.error("Error: Device %s Failed ShareQueue read_data", socket.gethostbyname())
+
+
+    def reset(self):
+
+        if self.get_Full_flag:
+            self.count = 0
+            self.rd_ptr = 0
+            return True
+
+        return False
 
 
     # Get Queue item
@@ -52,7 +64,7 @@ class SharedQueue:
         return self.count == 0
 
     def get_AE_flag(self):
-        return self.count < self.depth * 0.25
+        return self.count < (self.depth // 4)   # floor 25% of depth
 
     def get_AF_flag(self):
-        return self.count > self.depth * 0.75
+        return self.count > ((self.depth * 3) // 4) # floor 75% of depth

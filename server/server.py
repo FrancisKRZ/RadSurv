@@ -95,7 +95,6 @@ class Server(Thread):
         total_sent = 0
 
         while total_sent < msg_len:
-
             try:
                 sent = self.server.send(msg[total_sent:])
                 total_sent = total_sent + 1
@@ -109,7 +108,6 @@ class Server(Thread):
         bytes_recv = 0
 
         while bytes_recv < self.MESSAGE_LENGTH:
-            
             try:
                 msg_chunk = self.server.recv(min(self.MESSAGE_LENGTH - bytes_recv, self.MESSAGE_LENGTH))
                 msg_chunk.append(msg_chunk)
@@ -129,11 +127,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParse(prog="server.py", description="Listens to packets from RF Server nodes.")
     parser.add_argument('-n', '--hostname', type=str, default='localhost', help="Hostname for the Server.")
     parser.add_argument('-p', '--port', type=int, default=8888, help="Port number for Server.")
+    parser.add_argument('m', '--maxconns', type=int, default=5, help="Maximum Server connections from clients.")
+    parser.add_argument('l', '--messagelength', type=int, default=128, help="Message length")
 
     args = parser.parse_args()
     hostname = args.hostname
     port = args.port
+    maximum_connections = args.maxconns
+    message_length = args.messagelength
 
-    print(f"Hostname: {hostname}, listening on port: {port}")
+    print(f"Hostname: {hostname}, listening on port: {port}\
+        \nMaximum connections {maximum_connections}, message length: {message_length}")
+
 
 

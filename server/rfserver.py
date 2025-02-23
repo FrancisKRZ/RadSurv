@@ -32,7 +32,7 @@ from threading import Thread
 mutex = Lock()
 
 # Global Logging Object
-logging.basicConfig(filename="../log/rf_to_server.log", format='%(asctime)s %(message)s', filemode='w')
+logging.basicConfig(filename="../log/rfserver.log", format='%(asctime)s %(message)s', filemode='w')
 logger = logging.getLogger()
 
 
@@ -98,6 +98,15 @@ class RFPacketSender(Thread):
                 self.client.connect((self.remote_hostname, self.remote_port))
         except:
             logger.error("Error during RFPacketSender.connect()")
+
+    # Safely close socket connection
+    def close_socket(self):
+        
+        try:
+            self.client.shutdown()
+            self.client.close()
+        except:
+            logger.error("Error during RFPacketSender close_socket()")
 
 
     def send(self, packet : bytes):
