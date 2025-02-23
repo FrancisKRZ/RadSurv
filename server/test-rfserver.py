@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     packetbuilder = RFPacketBuilder(local_hostname, local_port)
     # struct.pack -> bytes
-    packet = packetbuilder.build_packet()
+    packet = packetbuilder.build_packet(buffer)
 
     socket = RFPacketSender(remote_hostname, remote_port)
     socket.connect()
