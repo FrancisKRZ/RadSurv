@@ -19,11 +19,11 @@ class SharedQueue:
 
         try:
             if self.get_Full_flag() is False:
-                self.queue[count] = data
+                self.queue[self.count] = data
                 self.count = self.count + 1
         except:
             print("Failed SharedQueue write_data")
-            logger.error("Error: Device %s Failed SharedQueue write_data", socket.gethostbyname())
+            logger.error("Error: Device Failed SharedQueue write_data")
 
 
     # [Mutex]
@@ -32,11 +32,11 @@ class SharedQueue:
         try:
             if self.get_Empty_flag is False:
                 self.count = self.count - 1      # Update size counter
-                self.rd_ptr = rd_ptr + 1         # Update read pointer prior to return
-                return SharedQueue[rd_ptr-1]     # return the original pointed Queue rd
+                self.rd_ptr = self.rd_ptr + 1         # Update read pointer prior to return
+                return SharedQueue[self.rd_ptr-1]     # return the original pointed Queue rd
         except:
             print("Failed to read data")
-            logger.error("Error: Device %s Failed ShareQueue read_data", socket.gethostbyname())
+            logger.error("Error: Device Failed ShareQueue read_data")
 
 
     def reset(self):
