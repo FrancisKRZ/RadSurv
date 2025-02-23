@@ -1,3 +1,5 @@
+import socket
+
 from SharedQueue import SharedQueue
 from rfserver import RFPacketBuilder
 from rfserver import RFPacketSender
@@ -17,7 +19,6 @@ def unit_tests():
 
 if __name__ == "__main__":
 
-    print(f"Server at {socket.gethostbyname()}")
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(prog="rf_to_server.py", description="Simple NRF24 Request/Response Server Example")
@@ -41,6 +42,8 @@ if __name__ == "__main__":
     remote_port = args.remote_port
     # RF address
     address = args.address
+
+    print(f"Server at {socket.gethostbyname(local_hostname)}")
 
     # SharedQueue Buffer
     buffer = SharedQueue(10)
