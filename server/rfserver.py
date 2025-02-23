@@ -129,7 +129,7 @@ class RFPacketSender(Thread):
 # Calls arg parser, pigpio, rf module, and manages SharedQueue buffer wr/rx and socket connection(s)
 if __name__ == "__main__":
 
-    print(f"Server at {socket.gethostbyname()}")
+
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(prog="rf_to_server.py", description="Simple NRF24 Request/Response Server Example")
@@ -163,6 +163,7 @@ if __name__ == "__main__":
     # RF address
     address = args.address
 
+    print(f"Server at {socket.gethostbyname(local_hostname)}")
 
     # Check if addr is not char [6]
     if (len(address) >= ADDRESS_CHAR_LIMIT):
@@ -249,7 +250,7 @@ if __name__ == "__main__":
 
     except:
         # If catch exception, power down device(s)
-        logger.error("Error during receiver body execution by device %s", socket.gethostbyname())
+        logger.error("Error during receiver body execution by device %s", socket.gethostbyname(local_hostname))
         traceback.print_exc()
         nrf.power_down()
         pi.stop()

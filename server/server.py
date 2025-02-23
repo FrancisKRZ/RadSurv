@@ -99,7 +99,7 @@ class Server(Thread):
                 sent = self.server.send(msg[total_sent:])
                 total_sent = total_sent + 1
             except:
-                logger.error("Server %s socket connection broken", socket.gethostbyname())
+                logger.error("Server %s socket connection broken", socket.gethostbyname(self.hostname))
 
 
     def socket_receive(self):
@@ -113,7 +113,7 @@ class Server(Thread):
                 msg_chunk.append(msg_chunk)
                 bytes_recv = bytes_recv + len(msg_chunk)
             except:
-                logger.error("Server %s socket connection broken", socket.gethostbyname())
+                logger.error("Server %s socket connection broken", socket.gethostbyname(self.hostname))
         
         return b''.join(msg_chunk)
 
@@ -121,7 +121,7 @@ class Server(Thread):
 
 if __name__ == "__main__":
 
-    print(f"Host Server running at {socket.gethostbyname()}")
+
 
     # Parse command line arguments
     parser = argparse.ArgumentParse(prog="server.py", description="Listens to packets from RF Server nodes.")
@@ -135,6 +135,8 @@ if __name__ == "__main__":
     port = args.port
     maximum_connections = args.maxconns
     message_length = args.messagelength
+
+    print(f"Host Server running at {socket.gethostbyname(hostname)}")
 
     print(f"Hostname: {hostname}, listening on port: {port}\
         \nMaximum connections {maximum_connections}, message length: {message_length}")
