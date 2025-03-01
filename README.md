@@ -10,9 +10,9 @@ and server for surveillance database.
 
 ## Goals ##
 
-- Implement NRF24 radio frequency module running on several ATMega microcontrollers
-- Capture real time surveillance data from ATMega devices and send to a converter device
-- Receive ATMega data in a converter device (ARM RPI)
+- Implement NRF24 radio frequency module running on several AVR microcontrollers
+- Capture real time surveillance data from AVR devices and send to a converter device
+- Receive AVR data in a converter device (ARM RPI)
 - Pack the data and send it to a server using INET TCP protocol
 - Server analyzes data and saves it to a local database
 
@@ -59,6 +59,8 @@ which will initiate packet capturing, which will also be sent to the server.
 | 4 | Alert Mods.|  Listens to RF modules which triggers a physical sensor to    |    LOW     | Although low priority, a good chunk
 |   |            |  alert personnel of surveillance device trigger               |            | of work has gone into it, haha.
 
+| 5 | Sentry 	 |  Camera device(s), can have multiple activation modes	 |    HIGH *  | Primary surveillance device.	
+|   |            |  and triggers.						 |	      |
 
 
 [Additional Setup]
@@ -114,16 +116,19 @@ Server and Client connection files, server.py and rf_to_server.py will utilize a
 
 ## TODO
 
-    Add hooks to each tasks for managing mutex wr/rd prior to rx 
+   -Add hooks to each tasks for managing mutex wr/rd prior to rx 
     operation from transmitter.ino inside of receiver.ino
 
-    Database design
+    -Database design
 
+    -Async python for sentry devices.
 
 
 ## Resources and References
 
-- Server                        ---- Socket Programming TCP: https://docs.python.org/3.11/howto/sockets.html
-- Transmitters and Receivers    ---- RF24:      https://github.com/nRF24/RF24?tab=readme-ov-file
-- RF to Server                  ---- RF24:      https://github.com/bjarne-hansen/py-nrf24
-- Scheduler                     ---- FreeRTOS:  https://www.freertos.org/Documentation/00-Overview
+- Server                        ---- Socket Programming TCP: 	https://docs.python.org/3.11/howto/sockets.html
+- Transmitters and Receivers    ---- RF24:      		https://github.com/nRF24/RF24?tab=readme-ov-file
+- RF to Server                  ---- RF24:      		https://github.com/bjarne-hansen/py-nrf24
+- Scheduler                     ---- FreeRTOS:  		https://www.freertos.org/Documentation/00-Overview
+- Sentry			---- Camera Setup: 		https://www.raspberrypi.com/documentation/accessories/camera.html
+- Sentry (picamera2 library)    ---- Camera Library: 		https://datasheets.raspberrypi.com/camera/picamera2-manual.pdf 
