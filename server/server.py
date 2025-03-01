@@ -45,18 +45,27 @@ class ServerTCPHandler(socketserver.BaseRequestHandler):
         
         # self.request is the TCP socket connected to the client
         self.data = self.request.recv(1024).strip()
+
+        if self.data is None:
+            print("No data received from client.")
+            return
+
+        try:
+            # Unpack the data packet
+            packet = unpack_packet(self.data)
+
+            print(packet['hostname'])
+            print(packet['port'])
+            print(packet['queue'])
+
+            # We'll buffer the data, format, then save to database
+            pass
+            # Send acknowledge request
+            self.request.sendall(self.data)
         
-        # Unpack the data packet
-        packet = unpack_packet(self.data)
-
-        print(packet['hostname'])
-        print(packet['port'])
-        print(packet['queue'])
-
-        # We'll buffer the data, format, then save to database
-        pass
-        # Send acknowledge request
-        self.request.sendall(self.data)
+        except Exception as e:
+            logger.error(f"Error during handle() data unpacking: {e}")
+            print(f"Error processsing packet: {e}")
 
 
 # A wrapper which will enable threaded utilization in the server and allows

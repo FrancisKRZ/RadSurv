@@ -78,9 +78,10 @@ class RFPacketSender(Thread):
     def connect(self):
 
         try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.client:
-                # Connects client to server
-                self.client.connect((self.remote_hostname, self.remote_port))
+            self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM):
+            # Connects client to server
+            self.client.connect((self.remote_hostname, self.remote_port))
+        
         except Exception as e:
             logger.error(f"Error during RFPacketSender.connect(): {e}")
 
@@ -88,15 +89,20 @@ class RFPacketSender(Thread):
     def close_socket(self):
         
         try:
-            self.client.shutdown()
+            self.client.shutdown(SHUT_RDWR)
             self.client.close()
+        
         except Exception as e:
             logger.error(f"Error during RFPacketSender close_socket(): {e}")
 
 
     def send(self, packet : bytes):
         
-        try:
+        try:    
+            if self.socket is None or self.socket.fileno() == -1:
+                print("Socket is closed or invalid")
+                return
+
             self.client.sendall(packet)
         except Exception as e:
             logger.error(f"Error during RFPacketSender.send(): {e}")
