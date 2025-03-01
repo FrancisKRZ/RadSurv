@@ -78,7 +78,7 @@ class RFPacketSender(Thread):
     def connect(self):
 
         try:
-            self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM):
+            self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             # Connects client to server
             self.client.connect((self.remote_hostname, self.remote_port))
         
