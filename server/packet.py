@@ -24,7 +24,7 @@ def build_packet(hostname: str, port: int, Queue_Object: SharedQueue) -> bytes:
 
     packet = struct.pack(packetformat, 
                         hostname_len, hostname_bytes, 
-                        local_port, 
+                        port, 
                         date_len, date_bytes, 
                         queue_length, *queue)
 
