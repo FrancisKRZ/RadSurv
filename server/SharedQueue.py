@@ -1,3 +1,10 @@
+import logging
+
+# Global Logging Object
+logging.basicConfig(filename="../log/server.log", format='%(asctime)s %(message)s', filemode='a')
+logger = logging.getLogger()
+
+
 # [MUTEX] Shared Resource Queue <Implementation>: 
 class SharedQueue:
 

@@ -34,7 +34,7 @@ from threading import Thread
 mutex = Lock()
 
 # Global Logging Object
-logging.basicConfig(filename="../log/rfserver.log", format='%(asctime)s %(message)s', filemode='w')
+logging.basicConfig(filename="../log/rfserver.log", format='%(asctime)s %(message)s', filemode='a')
 logger = logging.getLogger()
 
 

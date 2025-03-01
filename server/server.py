@@ -31,7 +31,7 @@ from threading import Thread
 mutex = Lock()
 
 # Global Logging Object
-logging.basicConfig(filename="../log/server.log", format='%(asctime)s %(message)s', filemode='w')
+logging.basicConfig(filename="../log/server.log", format='%(asctime)s %(message)s', filemode='a')
 logger = logging.getLogger()
 
 
@@ -51,6 +51,13 @@ class ServerTCPHandler(socketserver.BaseRequestHandler):
         self.request.sendall(self.data)
 
 
+# A wrapper which will enable threaded utilization in the server and allows
+# class Server to properly be non-blocking
+class ThreadedTCPServer(socketserver.ThreadingTCPServer):
+    
+    # Avoids "address already in use" errors
+    allow_reuse_address = True
+
 
 # The connection shall be TCP to ensure quality file wr/rd and surveillance integrity
 class Server(Thread):
@@ -64,17 +71,21 @@ class Server(Thread):
         self.MESSAGE_LENGTH = MESSAGE_LENGTH
         # Server socket initialization
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.bind(self.hostname, self.port)
+        # Allows socket reuse address
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        time.sleep(0.5)
+        self.server.bind((self.hostname, self.port))
 
 
     def server_start(self):
 
         try:
-            with socketserver.TCPServer((self.hostname, self.port), ServerTCPHandler) as server:
+            with ThreadedTCPServer((self.hostname, self.port), ServerTCPHandler) as server:
                 # Activate server and runs until program interrupt
                 server.serve_forever()
-        except:
-            logger.error("Error during server_start() execution")
+        # Catch exception error and log
+        except Exception as e:
+            logger.error(f"Error during server_start() execution: {e}")
 
 
     # Socket impl
@@ -140,6 +151,12 @@ if __name__ == "__main__":
 
     print(f"Hostname: {hostname}, listening on port: {port}\
         \nMaximum connections {maximum_connections}, message length: {message_length}")
+
+    server = Server(hostname, port, maximum_connections, message_length)
+    server.server_start()
+
+
+
 
 
 
