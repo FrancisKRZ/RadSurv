@@ -5,3 +5,6 @@
 2025-03-01 08:55:38,865 Error during server_start() execution: [Errno 98] Address already in use
 2025-03-01 09:00:09,099 Error during server_start() execution: [Errno 98] Address already in use
 2025-03-01 09:02:53,900 Error during server_start() execution: [Errno 98] Address already in use
+2025-03-01 12:33:12,030 Error during RFPacketSender.connect(): [Errno -2] Name or service not known
+2025-03-01 12:33:12,031 Error during RFPacketSender.send(): [Errno 9] Bad file descriptor
+2025-03-01 12:33:12,033 Error during RFPacketSender close_socket(): socket.shutdown() takes exactly one argument (0 given)

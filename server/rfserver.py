@@ -85,12 +85,13 @@ class RFPacketBuilder(Thread):
 
         print(f"Queue: {queue}\nLength: {queue_length}")
 
-        # Packing format: Little Endian, int, str, int, str, int, int[]
-        packetformat = f'<H{hostname_len}sH{date_len}sH{queue_length}h'
+        # Packing format: Little Endian, int, str, int, int, str, int, int[]
+        packetformat = f'<H{hostname_len}sHH{date_len}sH{queue_length}h'
         
         print(f"Format Sring: {packetformat}")
         print(f"Arguments: {[hostname_len, hostname_bytes, self.local_port, date_len, date_bytes, queue_length, *queue]}")
 
+        # H s H H s H h
         packet = struct.pack(packetformat, 
                             hostname_len, hostname_bytes, 
                             self.local_port, 
@@ -214,11 +215,7 @@ if __name__ == "__main__":
     Queue = SharedQueue(QUEUE_DEPTH)
 
     # Create RFPacketBuilder object
-    PacketBuilder = RFPacketBuilder(
-        local_hostname=local_hostname, local_port=local_port,
-        remote_hostname=remote_hostname, remote_port=remote_port,
-        Queue_Object=Queue
-        )
+    PacketBuilder = RFPacketBuilder(local_hostname, local_port)
 
     # Receiver body
     try:
