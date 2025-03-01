@@ -70,14 +70,32 @@ class RFPacketBuilder(Thread):
         # Build Packet containing: Local IDs, Payload metadata, connection metadata...
         print(f"Build object with data: {Queue_Object.queue}")
         
-        # Current time as of packet build
-        cur_date = datetime.now()
-        # SharedQueue queue and item count
-        queue        = SharedQueue.get_queue()
-        queue_length = SharedQueue.get_count()
+        # Encode for struct pack
+        hostname_bytes = self.local_hostname.encode('utf-8')
+        hostname_len   = len(hostname_bytes)
 
-        packet = struct.pack(self.local_hostname, self.local_port, 
-                            cur_date, queue, queue_length)
+        # SharedQueue queue and item count
+        queue        = Queue_Object.get_queue()
+        queue_length = Queue_Object.get_count()
+
+        # Time as of packing
+        cur_date = "{:%B, %d, %Y}".format(datetime.now())
+        date_bytes = cur_date.encode('utf-8')
+        date_len = len(date_bytes)
+
+        print(f"Queue: {queue}\nLength: {queue_length}")
+
+        # Packing format: Little Endian, int, str, int, str, int, int[]
+        packetformat = f'<H{hostname_len}sH{date_len}sH{queue_length}h'
+        
+        print(f"Format Sring: {packetformat}")
+        print(f"Arguments: {[hostname_len, hostname_bytes, self.local_port, date_len, date_bytes, queue_length, *queue]}")
+
+        packet = struct.pack(packetformat, 
+                            hostname_len, hostname_bytes, 
+                            self.local_port, 
+                            date_len, date_bytes, 
+                            queue_length, *queue)
 
         return packet
 
