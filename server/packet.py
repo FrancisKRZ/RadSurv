@@ -3,7 +3,7 @@ from SharedQueue import SharedQueue
 
 # Builds packet containing local hostname & port
 # date and queue objects
-def build_packet(self, hostname: str, port: int, Queue_Object: SharedQueue) -> bytes:
+def build_packet(hostname: str, port: int, Queue_Object: SharedQueue) -> bytes:
 
     # Encode for struct pack
     hostname_bytes = hostname.encode('utf-8')
