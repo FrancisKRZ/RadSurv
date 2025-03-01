@@ -1,5 +1,6 @@
 import struct
 from SharedQueue import SharedQueue
+from datetime import datetime
 
 # Builds packet containing local hostname & port
 # date and queue objects
