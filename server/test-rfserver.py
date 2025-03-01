@@ -3,6 +3,7 @@ import socket
 from SharedQueue import SharedQueue
 from rfserver import RFPacketBuilder
 from rfserver import RFPacketSender
+from packet import build_packet
 
 # Parse Command Line Arguments
 import argparse
@@ -50,12 +51,11 @@ if __name__ == "__main__":
     for i in range (10):
         buffer.write_data(i*10)
 
-    packetbuilder = RFPacketBuilder(local_hostname, local_port)
     # struct.pack -> bytes
 
     print(f"Buffer count: {buffer.get_count()}")
 
-    packet = packetbuilder.build_packet(buffer)
+    packet = build_packet(local_hostname, local_port, buffer)
 
     socket = RFPacketSender(remote_hostname, remote_port)
     socket.connect()

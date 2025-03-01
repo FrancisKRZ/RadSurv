@@ -6,8 +6,9 @@
 
 # Libraries as seen in rr-server.py
 import argparse
-import struct
 import traceback
+
+from packet import build_packet
 
 # Pi Zero GPIO 
 import pigpio
@@ -61,45 +62,8 @@ class RFPacketBuilder(Thread):
         # Thread Mutex thingamajig
         Thread.__init__(self)
 
-
-    # Builds a Packet containing local and remote addrs & port
-    # current time, queue and queue's item count
-    # <returns struct.pack>
-    def build_packet(self, Queue_Object: SharedQueue) -> bytes:
-
-        # Build Packet containing: Local IDs, Payload metadata, connection metadata...
-        print(f"Build object with data: {Queue_Object.queue}")
-        
-        # Encode for struct pack
-        hostname_bytes = self.local_hostname.encode('utf-8')
-        hostname_len   = len(hostname_bytes)
-
-        # SharedQueue queue and item count
-        queue        = Queue_Object.get_queue()
-        queue_length = Queue_Object.get_count()
-
-        # Time as of packing
-        cur_date = "{:%B, %d, %Y}".format(datetime.now())
-        date_bytes = cur_date.encode('utf-8')
-        date_len = len(date_bytes)
-
-        print(f"Queue: {queue}\nLength: {queue_length}")
-
-        # Packing format: Little Endian, int, str, int, int, str, int, int[]
-        packetformat = f'<H{hostname_len}sHH{date_len}sH{queue_length}h'
-        
-        print(f"Format Sring: {packetformat}")
-        print(f"Arguments: {[hostname_len, hostname_bytes, self.local_port, date_len, date_bytes, queue_length, *queue]}")
-
-        # H s H H s H h
-        packet = struct.pack(packetformat, 
-                            hostname_len, hostname_bytes, 
-                            self.local_port, 
-                            date_len, date_bytes, 
-                            queue_length, *queue)
-
-        return packet
-
+    pass
+    # Manage packets using packet.py
 
 # Init should establish TCP connection, we'll simply send and await confirmation
 class RFPacketSender(Thread):
