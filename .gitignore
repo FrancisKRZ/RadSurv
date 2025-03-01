@@ -1,2 +1,4 @@
 # Ignore server's virtual environment files
 server/venv
+# Ignore cache
+server/__pycache__
