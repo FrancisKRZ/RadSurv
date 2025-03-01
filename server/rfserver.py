@@ -17,7 +17,9 @@ from nrf24 import *
 
 import sys
 import socket
+
 import time
+from datetime import datetime
 
 # SharedQueue buffer
 import SharedQueue
@@ -96,8 +98,8 @@ class RFPacketSender(Thread):
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.client:
                 # Connects client to server
                 self.client.connect((self.remote_hostname, self.remote_port))
-        except:
-            logger.error("Error during RFPacketSender.connect()")
+        except Exception as e:
+            logger.error(f"Error during RFPacketSender.connect(): {e}")
 
     # Safely close socket connection
     def close_socket(self):
@@ -105,30 +107,29 @@ class RFPacketSender(Thread):
         try:
             self.client.shutdown()
             self.client.close()
-        except:
-            logger.error("Error during RFPacketSender close_socket()")
+        except Exception as e:
+            logger.error(f"Error during RFPacketSender close_socket(): {e}")
 
 
     def send(self, packet : bytes):
         
         try:
             self.client.sendall(packet)
-        except:
-            logger.error("Error during RFPacketSender.send()")
+        except Exception as e:
+            logger.error(f"Error during RFPacketSender.send(): {e}")
 
 
     def receive(self):
 
         try:
             recv = str(self.client.recv(1024), "utf-8")
-        except:
-            logger.error("Error during RFPacketSender.receive()")
+        except Exception as e:
+            logger.error(f"Error during RFPacketSender.receive(): {e}")
 
 
 
 # Calls arg parser, pigpio, rf module, and manages SharedQueue buffer wr/rx and socket connection(s)
 if __name__ == "__main__":
-
 
 
     # Parse command line arguments

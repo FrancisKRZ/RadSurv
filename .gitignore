@@ -1,0 +1,2 @@
+# Ignore server's virtual environment files
+server/venv
