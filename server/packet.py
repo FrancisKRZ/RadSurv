@@ -1,6 +1,8 @@
 import struct
 from SharedQueue import SharedQueue
 from datetime import datetime
+# Allows to store data received as a JSON, which we'll utilize to store in DB
+import json
 
 # Builds packet containing local hostname & port
 # date and queue objects

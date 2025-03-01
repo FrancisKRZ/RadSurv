@@ -19,6 +19,8 @@ import time
 import argparse
 # Log errors to log/ directory
 import logging
+# Allows to unpack packet as a dictionary
+from packet import unpack_packet
 
 # Multi-Threaded for Server spawns
 from threading import Lock
@@ -40,10 +42,16 @@ logger = logging.getLogger()
 class ServerTCPHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
+        
         # self.request is the TCP socket connected to the client
         self.data = self.request.recv(1024).strip()
-        print("Received from {}: ".format(self.client_address[0]))
-        print(self.data)
+        
+        # Unpack the data packet
+        packet = unpack_packet(self.data)
+
+        print(packet['hostname'])
+        print(packet['port'])
+        print(packet['queue'])
 
         # We'll buffer the data, format, then save to database
         pass
