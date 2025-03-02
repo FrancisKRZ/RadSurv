@@ -100,7 +100,10 @@ class Server(Thread):
         # Catch exception error and log
         except Exception as e:
             logger.error(f"Error during server_start() execution: {e}")
-
+        except KeyboardInterrupt:
+            logger.info("Manual server interrupt")
+            server.shutdown()
+            server.server_close()
 
     # Socket impl
     def socket_start(self):
