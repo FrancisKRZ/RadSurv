@@ -17,7 +17,7 @@ def build_packet(hostname: str, port: int, Queue_Object: SharedQueue) -> bytes:
     queue_length = Queue_Object.get_count()
 
     # Time as of packing
-    cur_date = "{:%B, %d, %Y}".format(datetime.now())
+    cur_date = "{:%B, %d, %Y %H:%M:%S}".format(datetime.now())
     date_bytes = cur_date.encode('utf-8')
     date_len = len(date_bytes)
 
