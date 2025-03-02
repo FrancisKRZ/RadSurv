@@ -17,7 +17,11 @@ def build_packet(hostname: str, port: int, Queue_Object: SharedQueue) -> bytes:
     queue_length = Queue_Object.get_count()
 
     # Time as of packing
+<<<<<<< HEAD
     cur_date = "{:%B %d %Y %H:%M:%S}".format(datetime.now())
+=======
+    cur_date = "{:%B, %d, %Y %H:%M:%S}".format(datetime.now())
+>>>>>>> 9edcce73e02bb6151c9e119522c5b5f6e0a7bce8
     date_bytes = cur_date.encode('utf-8')
     date_len = len(date_bytes)
 
@@ -35,6 +39,9 @@ def build_packet(hostname: str, port: int, Queue_Object: SharedQueue) -> bytes:
 
 def unpack_packet(packet: bytes):
     
+    print("Unpacking packet!")
+
+
     # Unpack hostname length
     hostname_len = struct.unpack_from('<H', packet, 0)[0]
     offset = 2
