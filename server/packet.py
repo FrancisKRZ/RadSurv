@@ -35,6 +35,9 @@ def build_packet(hostname: str, port: int, Queue_Object: SharedQueue) -> bytes:
 
 def unpack_packet(packet: bytes):
     
+    print("Unpacking packet!")
+
+
     # Unpack hostname length
     hostname_len = struct.unpack_from('<H', packet, 0)[0]
     offset = 2

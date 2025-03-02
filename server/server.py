@@ -44,7 +44,10 @@ class ServerTCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         
         # self.request is the TCP socket connected to the client
-        self.data = self.request.recv(1024).strip()
+        # self.data = b""
+        self.data = bytes(self.request.recv(1024))
+
+        print(f"self.data: {self.data}")
 
         if self.data is None:
             print("No data received from client.")
@@ -53,15 +56,9 @@ class ServerTCPHandler(socketserver.BaseRequestHandler):
         try:
             # Unpack the data packet
             packet = unpack_packet(self.data)
-
-            print(packet['hostname'])
-            print(packet['port'])
-            print(packet['queue'])
-
-            # We'll buffer the data, format, then save to database
-            pass
+            print(packet)
             # Send acknowledge request
-            self.request.sendall(self.data)
+            self.request.sendall(b"Ack")
         
         except Exception as e:
             logger.error(f"Error during handle() data unpacking: {e}")
