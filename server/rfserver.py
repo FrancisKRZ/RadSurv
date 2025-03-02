@@ -89,9 +89,9 @@ class RFPacketSender(Thread):
     def close_socket(self):
         
         try:
-            self.client.shutdown(SHUT_RDWR)
+            self.client.shutdown(socket.SHUT_RDWR)
             self.client.close()
-        
+            self.client = None
         except Exception as e:
             logger.error(f"Error during RFPacketSender close_socket(): {e}")
 
@@ -99,22 +99,46 @@ class RFPacketSender(Thread):
     def send(self, packet : bytes):
         
         try:    
-            if self.socket is None or self.socket.fileno() == -1:
+            if self.client is None or self.client.fileno() == -1:
                 print("Socket is closed or invalid")
                 return
 
+            print(f"Sending packet len: {len(packet)} packet: {packet}")
             self.client.sendall(packet)
         except Exception as e:
             logger.error(f"Error during RFPacketSender.send(): {e}")
+
+
+    def send_iter(self, packet: bytes):
+
+        try:
+            if self.client is None or self.client.fileno() == -1:
+                print("Socket is closed or invalid")
+                return
+
+            total_sent = 0
+            while total_sent < len(packet):
+                sent = self.client.send(packet[total_sent: ])
+                if sent == 0:
+                    raise RuntimeError("Socket connection broken")
+                total_sent += sent
+
+            print(f"Sent {total_sent}/{len(packet)} bytes successfully: {packet}")
+
+        except Exception as e:
+            logger.error(f"Error during RFPacketSender.send_iter(): {e}")
 
 
     def receive(self):
 
         try:
             recv = str(self.client.recv(1024), "utf-8")
+            if recv:
+                print(f"Received response: {recv}")
+
         except Exception as e:
             logger.error(f"Error during RFPacketSender.receive(): {e}")
-
+            return None
 
 
 # Calls arg parser, pigpio, rf module, and manages SharedQueue buffer wr/rx and socket connection(s)

@@ -60,4 +60,5 @@ if __name__ == "__main__":
     socket = RFPacketSender(remote_hostname, remote_port)
     socket.connect()
     socket.send(packet)
+    socket.receive()
     socket.close_socket()
