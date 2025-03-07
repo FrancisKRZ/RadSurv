@@ -37,7 +37,7 @@ class SharedQueue:
     def read_data(self):
 
         try:
-            if self.get_Empty_flag is False:
+            if self.get_Empty_flag() is False:
                 self.count = self.count - 1      # Update size counter
                 self.rd_ptr = self.rd_ptr + 1         # Update read pointer prior to return
                 return SharedQueue[self.rd_ptr-1]     # return the original pointed Queue rd
