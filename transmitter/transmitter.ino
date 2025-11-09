@@ -108,51 +108,6 @@ void TaskTransmitter(void *pvParameters) {
 //===============================================================================
 //  Main
 //===============================================================================
-void loop() {
-
-  /* RTOS Opportunity , 
-  Sequential circuit camera activation upon movement_detected
-  for 3-5 minutes , then deactivation */
-
-  bool movement_detected = movement_logic();
-
-  while (movement_detected){
-
-    radio.write(&movement_detected, sizeof(bool));
-    movement_detected = movement_logic();
-
-    #ifdef DEBUG_ENABLE
-      Serial.println(movement_detected);
-    #endif
-  }
-
-  // Remove delays if using tasks
-  delay(100);                          // Delay for 0.1 second, then repeat
-
-}
-
-
-bool movement_logic(){
-
-  // Used to send additional zeroes to ensure readouts by the receiver(s)
-  const static unsigned short ZERO_BUFFER = 16;
-
-  pinStatePrevious = pinStateCurrent;      // Stores old state
-  pinStateCurrent  = digitalRead(IRM_PIN); // Reads new state
-
-  if (pinStatePrevious == LOW && pinStateCurrent == HIGH){
-    return true;
-  } else
-  if (pinStatePrevious == HIGH && pinStateCurrent == LOW){
-
-    bool send_false = false;
-
-    for (int i = 0; i < ZERO_BUFFER; i++){
-      radio.write(&send_false, sizeof(bool));
-    }
-    return false;
-  } 
-
-}
+void loop() { vTaskDelete(NULL); }
 
 
