@@ -3,7 +3,7 @@
 */
 
 // RTOS Library - Will be used for the sensor -> camera sequential circuits
-// #include <Arduino_FreeRTOS.h>
+#include <Arduino_FreeRTOS.h>
 // Serial Communication Interface & Radio Comms nRF24L01 Libraries
 #include <SPI.h>
 #include "RF24.h"
@@ -26,25 +26,85 @@ RF24 radio(CE_PIN, CSN_PIN);
   // Define address/pipe to use.
 const byte address[6] = "00001";
 
+// RTOS Tasks
+TaskHandle_t TaskTransmitter_Handler;
+
+// Task Notification ISRs
+void IRM_ISR_RISE();
+void IRM_ISR_FALL();
+void TaskTransmitter(void *pvParameters);
 
 //===============================================================================
 //  Initialization
 //===============================================================================
 void setup() {
-
+  
   Serial.begin(9600);
+  while (!Serial);
 
-  while (!Serial){ };
+  // Radio setup
+  radio.begin();
+  radio.openWritingPipe(address);
+  radio.setPALevel(RF24_PA_HIGH);
+  radio.stopListening();
 
-  radio.begin();                  // Start instance of the radio object
-  radio.openWritingPipe(address); // Setup pipe to write data to the address that was defined
-  radio.setPALevel(RF24_PA_HIGH);  // Set the Power Amplified level to [WIP] in this case
-  radio.stopListening();          // We are going to be the transmitter, so we will stop listening
+  pinMode(IRM_PIN, INPUT_PULLUP);
 
-  // Read Movement Module set as Input
-  pinMode(IRM_PIN, INPUT);
+  // Attach interrupt
+  attachInterrupt(digitalPinToInterrupt(IRM_PIN), IRM_ISR_RISE, RISING);
+  attachInterrupt(digitalPinToInterrupt(IRM_PIN), IRM_ISR_FALL, FALLING);
+
+  // Create the transmitter task
+  xTaskCreate(TaskTransmitter, "Transmitter", 256, NULL, 2, &TaskTransmitter_Handler);
+
+  // Start scheduler
+  vTaskStartScheduler();
+}
+
+
+void IRM_ISR_RISE() {
+
+  BaseType_t woken = pdFALSE;
+  vTaskNotifyGiveFromISR(TaskTransmitter_Handler, &woken);
+  if (woken) portYIELD_FROM_ISR();
 
 }
+
+
+void IRM_ISR_FALL() {
+
+  BaseType_t woken = pdFALSE;
+  vTaskNotifyGiveFromISR(TaskTransmitter_Handler, &woken);
+  if (woken) portYIELD_FROM_ISR();
+
+}
+
+
+void TaskTransmitter(void *pvParameters) {
+
+  for (;;) {
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    bool movement = digitalRead(IRM_PIN);
+    radio.write(&movement, sizeof(bool));
+
+    #ifdef DEBUG_ENABLE
+    Serial.print("Motion status: ");
+    Serial.println(movement);
+    #endif
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
+
 //===============================================================================
 //  Main
 //===============================================================================

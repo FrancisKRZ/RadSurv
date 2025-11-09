@@ -149,8 +149,6 @@ class Server(Thread):
 
 if __name__ == "__main__":
 
-
-
     # Parse command line arguments
     parser = argparse.ArgumentParser(prog="server.py", description="Listens to packets from RF Server nodes.")
     parser.add_argument('-n', '--hostname', type=str, default='localhost', help="Hostname for the Server.")

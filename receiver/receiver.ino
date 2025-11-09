@@ -141,6 +141,7 @@ void TaskRFRecv(void *pvParameters){
   } // eo for
 }
 
+// NOTE: Change task from polling into using ISR or DMA (if available). 
 // CONSUMER: Will turn on alert upon TaskRFRecv HIGH for at least 250 ms and LOW for 125 ms (375 ms total)
 void TaskAlertMod(void *pvParameters){
 
@@ -151,9 +152,11 @@ void TaskAlertMod(void *pvParameters){
 
   for (;;){
 
+    // Polling for semaphore, instead we'll use an ISR for context switching
     if (xSemaphoreTake(mutex, 3) == pdTRUE){
       
       // Assign to local status
+      // destroyed continually, due to it's polling nature, could change if using ISR
       bool ALERT_STATUS = GLOBAL_ALERT;
 
       #ifdef DEBUG_ENABLE
